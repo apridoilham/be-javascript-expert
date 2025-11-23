@@ -1,7 +1,18 @@
-node_modules
-.idea
+# Dependencies
+node_modules/
+
+# IDE
+.idea/
+
+# Database config
 config/database/test.json
-coverage
+
+# Testing
+coverage/
+
+# Environment variables (SENSITIVE!)
 .env
-dist
-build
+
+# Build output
+dist/
+build/
