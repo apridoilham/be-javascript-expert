@@ -2,34 +2,34 @@ name: CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '22.x'
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22.x'
 
-    - name: Install dependencies
-      run: npm ci --only=production
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps --only=production
 
-    # Deploy ke server via SSH
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.5
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd /home/ec2-user/forum-api # Ganti dengan path deploy Anda di server
-          git fetch origin main
-          git reset --hard origin/main
-          npm ci --only=production
-          npm run migrate up # Jalankan migrasi jika ada perubahan skema
-          pm2 restart forum-api # Restart aplikasi dengan PM2
-          sudo nginx -t && sudo systemctl reload nginx # Reload konfigurasi NGINX
+      # Deploy ke server via SSH
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.5
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd /home/ec2-user/forum-api # Ganti dengan path deploy Anda di server
+            git fetch origin main
+            git reset --hard origin/main
+            npm install --legacy-peer-deps --only=production
+            npm run migrate up # Jalankan migrasi jika ada perubahan skema
+            pm2 restart forum-api # Restart aplikasi dengan PM2
+            sudo nginx -t && sudo systemctl reload nginx # Reload konfigurasi NGINX
