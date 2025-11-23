@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Gunakan service container PostgreSQL
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: forumapi_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    strategy:
+      matrix:
+        node-version: [22.x]
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm ci
+
+    # Konfigurasi environment untuk test
+    - name: Create .env.test
+      run: |
+        echo "NODE_ENV=test" >> .env.test
+        echo "PGHOST=localhost" >> .env.test
+        echo "PGPORT=5432" >> .env.test
+        echo "PGUSER=postgres" >> .env.test
+        echo "PGPASSWORD=postgres" >> .env.test
+        echo "PGDATABASE=forumapi_test" >> .env.test
+        echo "ACCESS_TOKEN_KEY=mock_access_token_key_for_test" >> .env.test
+        echo "REFRESH_TOKEN_KEY=mock_refresh_token_key_for_test" >> .env.test
+
+    - name: Run migrations for test database
+      run: npm run migrate up
+      env:
+        NODE_ENV: test
+        PGHOST: localhost
+        PGPORT: 5432
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: forumapi_test
+
+    - name: Run tests
+      run: npm run test:coverage
+      env:
+        NODE_ENV: test
+        PGHOST: localhost
+        PGPORT: 5432
+        PGUSER: postgres
+        PGPASSWORD: postgres
+        PGDATABASE: forumapi_test
+
+    # Upload coverage reports (opsional)
+    - name: Upload coverage to GitHub
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: coverage/
