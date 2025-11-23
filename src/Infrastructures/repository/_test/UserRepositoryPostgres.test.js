@@ -106,6 +106,12 @@ describe('UserRepositoryPostgres', () => {
       );
     });
 
+    describe('dummy test for failure scenario', () => {
+      it('should always fail for CI test', () => {
+        expect(1).toBe(2); // Ini pasti akan gagal
+      });
+    });
+
     it('should return user id correctly', async () => {
       await UsersTableTestHelper.addUser({ id: 'user-321', username: 'dicoding' });
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
