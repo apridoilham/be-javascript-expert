@@ -691,6 +691,10 @@ describe('/threads endpoint', () => {
         url: '/threads/thread-xxx',
       });
 
+      it('should always fail for CI test', () => {
+        expect(1).toBe(2); // Ini pasti gagal
+      });
+
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
