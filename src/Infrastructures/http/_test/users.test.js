@@ -121,10 +121,6 @@ describe('/users endpoint', () => {
       );
     });
 
-    it('should always fail for CI test', () => {
-      expect(1).toBe(2); // Ini pasti gagal
-    });
-
     it('should response 400 when username unavailable', async () => {
       await UsersTableTestHelper.addUser({ username: 'dicoding' });
       const requestPayload = {
